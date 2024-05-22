@@ -1,0 +1,16 @@
+
+{% extends 'sidebar.html' %}
+
+{% block 'content' %}
+<h2>Update Project: {{ project.name }}</h2>
+<form method="post">
+    {% csrf_token %}
+    <h3>Project Details</h3>
+    {{ project_form.as_p }}
+    <h3>Connection Settings</h3>
+    {{ connection_form.as_p }}
+
+    <button type="submit" class="btn-primary">Save Changes</button>
+
+</form>
+{% endblock %}

@@ -1,0 +1,339 @@
+
+
+{% extends 'sidebar.html' %}
+{% load static %}
+
+{% block 'content' %}
+
+
+    <!-- <h1>Test Result Details</h1> -->
+
+
+  <div class="container">
+
+<!-- your_template.html -->
+<!-- {{test_result}} -->
+
+<h2>Test Result Details</h2>
+<div class="top-result">
+<div class="info-box">
+    <p><strong>First time added:</strong> {{ test_result.created_at }}</p>
+</div>
+<div class="info-box">
+    <p><strong>Last updated:</strong> {{ test_result.updated_at }}</p>
+</div>
+{%if test_result.project.user == request.user%}
+<a href="/trigger_dag/{{test_result.project.id}}">
+    <button class="btn-primary">Run now</button></a>
+{%endif%} 
+</div>
+</div>
+
+
+<div class="container">
+    <button class="button active" id="showTableBtn"> Table</button>
+    <button class="button" id="showChartsBtn">Charts</button>
+</div>
+
+<div class="container" id="tableContainer">
+
+    <!-- Your table code here -->
+    <h2>Data Types</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Field</th>
+                    <th>Type</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for field, data_type in test_result.data_types.items %}
+                <tr>
+                    <td>{{ field }}</td>
+                    <td>{{ data_type }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    
+        <h2>Missing Values</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Field</th>
+                    <th>Value</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for key, value in test_result.missing_values.items %}
+                <tr>
+                    <td>{{ key }}</td>
+                    <td>{{ value }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    
+        <h2>Descriptive Statistics</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Field</th>
+                    <th>Min</th>
+                    <th>Max</th>
+                    <th>Mean</th>
+                    <th>Std Dev</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for field_name, field_stats in test_result.descriptive_statistics.items %}
+                <tr>
+                    <td>{{ field_name }}</td>
+                    <td>{{ field_stats.min }}</td>
+                    <td>{{ field_stats.max }}</td>
+                    <td>{{ field_stats.mean }}</td>
+                    <td>{{ field_stats.std_dev }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    
+        <h2>Data Quality Issues</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Field</th>
+                    <th>Count</th>
+                    <th>Value</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for field_name, field_issues in test_result.data_quality_issues.items %}
+                {% for issue in field_issues %}
+                <tr>
+                    <td>{{ field_name }}</td>
+                    <td>{{ issue.count }}</td>
+                    <td>{{ issue.value }}</td>
+                </tr>
+                {% endfor %}
+                {% endfor %}
+            </tbody>
+        </table>
+    
+        <h2>Unique Values</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Field</th>
+                    <th>Unique Value Count</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for field_name, unique_count in test_result.unique_values.items %}
+                <tr>
+                    <td>{{ field_name }}</td>
+                    <td>{{ unique_count }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+ 
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Fields</th>
+                {% for field, _ in test_result.correlation_coefficients.items %}
+                    <th>{{ field }}</th>
+                {% endfor %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for field, correlations in test_result.correlation_coefficients.items %}
+                <tr>
+                    <td>{{ field }}</td>
+                    {% for _, correlation in correlations.items %}
+                        <td>{{ correlation }}</td>
+                    {% endfor %}
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    
+</div>
+</div>
+
+<div class="container" id="chartContainer" style="display: none;">
+
+    <!-- Your chart code here -->
+
+    <div class="container">
+        <h2>heat map for correlation</h2>
+        <img src="{% static 'media/' %}{{ correlation_matrix_image_path }}" alt="My image">
+    
+        <!-- <img src="{{ plot_image_path }}" alt="Box Plot for Outliers"> -->
+    </div>
+    
+    
+    <div class="container">
+        <h2>Descriptive Statistics</h2>
+        <canvas id="descriptiveStatisticsChart" width="800" height="400"></canvas>
+    
+    <!-- Add a container for the box plot -->
+    <!-- Add a container for the box plot -->
+    
+    <h3>unique values</h3>
+    <canvas id="uniqueValuesChart" width="400" height="400">
+        
+    </canvas>
+    <div class="container">
+        <h2>Box Plot for Outliers</h2>
+        <img src="{% static 'media/' %}{{ plot_image_path }}" alt="My image">
+    
+        <!-- <img src="{{ plot_image_path }}" alt="Box Plot for Outliers"> -->
+    </div>
+    </div>
+</div>
+
+<script>
+    // Function to show the table and hide the charts
+    function showTable() {
+        document.getElementById('tableContainer').style.display = 'block';
+        document.getElementById('chartContainer').style.display = 'none';
+        // Add 'active' class to the clicked button
+        document.getElementById('showTableBtn').classList.add('active');
+        // Remove 'active' class from the other button
+        document.getElementById('showChartsBtn').classList.remove('active');
+    }
+
+    // Function to show the charts and hide the table
+    function showCharts() {
+        document.getElementById('tableContainer').style.display = 'none';
+        document.getElementById('chartContainer').style.display = 'block';
+        // Add 'active' class to the clicked button
+        document.getElementById('showChartsBtn').classList.add('active');
+        // Remove 'active' class from the other button
+        document.getElementById('showTableBtn').classList.remove('active');
+    }
+
+    // Event listener for the showTable button
+    document.getElementById('showTableBtn').addEventListener('click', showTable);
+
+    // Event listener for the showCharts button
+    document.getElementById('showChartsBtn').addEventListener('click', showCharts);
+</script>
+
+
+
+
+
+<script>
+    // Extract data from test_result.unique_values object
+    const uniqueValuesData = {
+        labels: [],
+        values: [],
+    };
+
+    {% for field_name, unique_count in test_result.unique_values.items %}
+        uniqueValuesData.labels.push("{{ field_name }}");
+        uniqueValuesData.values.push({{ unique_count }});
+    {% endfor %}
+
+    // Create the donut chart
+    const ctx = document.getElementById('uniqueValuesChart').getContext('2d');
+    const uniqueValuesChart = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: uniqueValuesData.labels,
+            datasets: [{
+                data: uniqueValuesData.values,
+                backgroundColor: [
+                    'rgba(255, 99, 132, 0.5)',
+                    'rgba(54, 162, 235, 0.5)',
+                    'rgba(255, 206, 86, 0.5)',
+                    'rgba(75, 192, 192, 0.5)',
+                    'rgba(153, 102, 255, 0.5)',
+                    'rgba(255, 159, 64, 0.5)'
+                    // Add more colors if needed
+                ],
+                borderColor: [
+                    'rgba(255, 99, 132, 1)',
+                    'rgba(54, 162, 235, 1)',
+                    'rgba(255, 206, 86, 1)',
+                    'rgba(75, 192, 192, 1)',
+                    'rgba(153, 102, 255, 1)',
+                    'rgba(255, 159, 64, 1)'
+                    // Add more colors if needed
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: false, // Adjust as needed
+            maintainAspectRatio: false // Adjust as needed
+        }
+    });
+</script>
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const fields = [];
+        const minValues = [];
+        const maxValues = [];
+        const meanValues = [];
+        const stdDevValues = [];
+
+        {% for field_name, field_stats in test_result.descriptive_statistics.items %}
+            fields.push('{{ field_name }}');
+            minValues.push({{ field_stats.min }});
+            maxValues.push({{ field_stats.max }});
+            meanValues.push({{ field_stats.mean }});
+            stdDevValues.push({{ field_stats.std_dev }});
+        {% endfor %}
+
+        const ctx = document.getElementById('descriptiveStatisticsChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: fields,
+                datasets: [{
+                    label: 'Min',
+                    data: minValues,
+                    backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                    borderColor: 'rgba(255, 99, 132, 1)',
+                    borderWidth: 1
+                }, {
+                    label: 'Max',
+                    data: maxValues,
+                    backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 1
+                }, {
+                    label: 'Mean',
+                    data: meanValues,
+                    backgroundColor: 'rgba(255, 206, 86, 0.2)',
+                    borderColor: 'rgba(255, 206, 86, 1)',
+                    borderWidth: 1
+                }, {
+                    label: 'Std Dev',
+                    data: stdDevValues,
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    });
+</script>
+
+
+
+
+{% endblock %}

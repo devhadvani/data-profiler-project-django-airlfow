@@ -1,0 +1,71 @@
+{% extends 'sidebar.html' %}
+
+{% block 'content' %}
+
+
+ 
+<div class="dags-info container">
+    <h1>Manage Pipeline</h1>
+    <div class="dags-container">
+        <div class="dag-info-container">
+            <div class="dag-info">
+                <h2>DAG Information</h2>
+                <p><strong>DAG ID:</strong> {{ display_info.dag_id }}</p>
+                <p><strong>Description:</strong> {{ display_info.description }}</p>
+                <p><strong>Schedule Interval:</strong> {{ display_info.schedule_interval }}</p>
+                <p><strong>Next DAG Run:</strong> {{ display_info.next_dag_run }}</p>
+            </div>
+        </div>
+        <div class="dag-action-container">
+            <div class="dag-pause">
+                <h2>Pause/Unpause DAG</h2>
+                <p><strong>DAG ID:</strong> {{ display_info.dag_id }}</p>
+                <p><strong>Dag Status: </strong>       {% if display_info.is_paused%}
+                    Paused
+                    {% else %}
+                    Unpaused
+                    {%endif%}</p>
+                <!-- <label for="pause-toggle">Pause/Unpause DAG:</label> -->
+                <form action="/pause_dag/{{display_info.dag_id}}" method="post">
+                    {% csrf_token %}
+                    <input type="text" name="project_id" hidden value="{{ project_id }}"/>
+                    <button type="submit">
+                        {% if display_info.is_paused%}
+                        Unpause DAG
+                        {% else %}
+                        Pause Dag
+                        {%endif%}
+                    </button>
+                </form>
+            </div>
+            Average duration:
+            {{display_info.average_duration}}
+        </div>
+    </div>
+
+    <div class="dag-runs">
+        <h2>DAG Runs</h2>
+        <table>
+            <tr>
+                <th>DAG Run ID</th>
+                <!-- <th>Execution Date</th> -->
+                <!-- <th>Start Date</th>
+                <th>End Date</th> -->
+                <th>Status</th>
+                <th>Logs</th>
+                
+            </tr>
+            {% for run in dag_runs %}
+            <tr>
+                <td>{{ run.dag_run_id }}</td>
+                <!-- <td>{{ run.execution_date }}</td> -->
+                <!-- <td>{{ run.start_date }}</td>
+                <td>{{ run.end_date }}</td> -->
+                <td>{{ run.state }}</td>
+                <td><a href="{% url 'dag_run_logs' dag_id=run.dag_id dag_run_id=run.dag_run_id %}">View Logs</a></td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+    
+{% endblock %}

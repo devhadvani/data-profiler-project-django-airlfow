@@ -1,0 +1,63 @@
+{% extends 'sidebar.html' %}
+
+{%block 'content' %}
+
+<h1>Project Details</h1>
+ 
+{% if project.pipeline%}
+
+
+
+{%if project.user == request.user%}
+<a href="/trigger_dag/{{project_id}}">
+    <button class="btn-primary">Run now</button></a>
+{%endif%}
+    <h3>Tables Information:</h3>
+    {% if tables_info %}
+
+<table>
+    <thead>
+        <tr>
+            <th>Table Name</th>
+            <th>Row Count</th>
+            <th>Column Count</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for table_info in tables_info %}
+            <tr>
+                <td>
+                    <a href="{% url 'table_details' project_id=project_id table_name=table_info.name %}">
+                        {{ table_info.name }}
+                    </a>
+                </td>
+                <td>{{ table_info.row_count }}</td>
+                <td>{{ table_info.column_count }}</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+
+<h3> Table not found </h3>
+
+{% endif %}
+
+{% else %}
+
+{%if project.user == request.user%}
+<a href="/create_dag_form/{{project_id}}">
+    <button class="btn-update">Create pipeline</button>
+</a>
+{%else%}
+there is nothing
+{%endif%}
+
+{% endif %}
+
+
+
+
+
+
+{%endblock%}

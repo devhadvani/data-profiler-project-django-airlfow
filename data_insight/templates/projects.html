@@ -1,0 +1,56 @@
+{% extends 'sidebar.html' %}
+
+{%block 'content' %}
+
+<h2> Projects</h2>
+
+
+<br>
+   <a href="/create_project"> <button class="btn-green">create project</button></a>
+
+<table class="project-table">
+    <thead>
+        <tr>
+            <th>Project Name</th>
+            <th>Description</th>
+            <th>pipeline</th>
+            <th>Actions</th>
+            <th>Total Tables</th>
+
+        </tr>
+    </thead>
+    <tbody>
+        {% for project in projects %}
+        <tr>
+            <td>
+        <a href="/project_detail/{{project.id}}">
+                {{ project.name }}
+            </a>
+        </td>
+            <td>{{ project.description }}</td>
+            <td>
+            <a href="/create_dag_form/{{project.id}}">
+                <button class="btn-update">
+                    {% if project.pipeline%}
+                    Update pipeline
+                    {% else %}
+                    Create pipeline
+                    {% endif %}
+                </button>
+            </a>  
+            {% if project.pipeline%}
+            <a href="/manage_pipeline/{{project.id}}">
+                <button class="btn-white">Manage pipeline</button></a>
+            {% endif %}  
+         </td>     
+            <td>
+               <a href="/update_project/{{project.id}}"><button class="btn-update">Update</button></a>
+              <a href="/delete_project/{{project.id}}"><button class="btn-delete">Delete</button></a>
+            </td>
+            <td>{{ project.total_tables }}</td>
+
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{%endblock%}

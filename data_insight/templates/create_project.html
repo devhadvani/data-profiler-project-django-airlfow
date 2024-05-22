@@ -1,0 +1,51 @@
+{% extends 'sidebar.html' %}
+
+{% block 'content' %}
+<div class="form-container">
+    <h2>Create Project</h2>
+    <form action="{% url 'create_project' %}" method="post">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="name">Project Name:</label>
+            <input type="text" id="name" name="name" class="form-control" required>
+        </div>
+        <div class="form-group">
+            <label for="description">Description:</label>
+            <textarea id="description" name="description" class="form-control" rows="4" required></textarea>
+        </div>
+        <div class="form-group">
+            <label for="visibility">Visibility:</label>
+            <select id="visibility" name="visibility" class="form-control" required>
+                <option value="public">Public</option>
+                <option value="private">Private</option>
+            </select>
+        </div>
+        <h3>Connection Details</h3>
+        <div class="form-group">
+            <label for="connector_type">Connector Type:</label>
+            <input type="text" id="connector_type" name="connector_type" class="form-control" required>
+        </div>
+        <div class="form-group">
+            <label for="host">Host:</label>
+            <input type="text" id="host" name="host" class="form-control" required>
+        </div>
+        <div class="form-group">
+            <label for="port">Port:</label>
+            <input type="text" id="port" name="port" class="form-control" required>
+        </div>
+        <div class="form-group">
+            <label for="username">Username:</label>
+            <input type="text" id="username" name="username" class="form-control" required>
+        </div>
+        <div class="form-group">
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="password" class="form-control" required>
+        </div>
+        <div class="form-group">
+            <label for="database_name">Database Name:</label>
+            <input type="text" id="database_name" name="database_name" class="form-control" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Create Project</button>
+    </form>
+</div>
+{% endblock %}

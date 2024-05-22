@@ -1,0 +1,23 @@
+{% extends 'sidebar.html' %}
+
+{% block 'content' %}
+    <h2>Public Projects</h2>
+    <table class="project-table">
+        <thead>
+            <tr>
+                <th>Project Name</th>
+                <th>Description</th>
+                <th>Owner Name</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for project in public_projects %}
+           <tr>
+            <td> <a href="/project_detail/{{project.id}}">     {{ project.name }}</td></a>
+                <td>{{ project.description }}</td>
+                <td>{{ project.user.first_name }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}
